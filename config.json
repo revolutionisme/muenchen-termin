@@ -1,15 +1,15 @@
 {
-  "try_count": 10,
-  "interval_second": 1,
+  "try_count": 8640,
+  "interval_second": 30,
 
-  "base_url": "https://www22.muenchen.de/termin/index.php?loc=FS",
-  "termin_type": "FS Fahrerlaubnis erstmalig",
+  "base_url": "https://www46.muenchen.de/termin/index.php?cts=1080805",
+  "termin_type": "Niederlassungserlaubnis Blaue Karte EU",
 
   "salutation": "Herr",
-  "name": "Your Name",
-  "birthday": "30.01.1993",
-  "email": "hi@changkun.us",
+  "name": "Biplob Biswas",
+  "birthday": "04.09.1989",
+  "email": "revolutionisme@gmail.com",
 
-  "desire_start": "2019-07-05",
-  "desire_end": "2019-10-30"
+  "desire_start": "2019-10-31",
+  "desire_end": "2019-11-19"
 }

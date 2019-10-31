@@ -87,10 +87,11 @@ class TerminAutomation:
                 self.__termin_date, 
                 self.__termine_time),
         })
-        # print('debug step2: ', response.text)
+        print('debug step2: ', response.text)
 
     # step 3: book the appointment
     def book_termin(self):
+        print(f"{self.person.email}, {self.person.name}")
         response = self.__session.post(self.base_url, {
             'step': 'WEB_APPOINT_SAVE_APPOINT',
             'CONTACT[salutation]': self.person.salutation,
@@ -99,7 +100,7 @@ class TerminAutomation:
             'CONTACT[email]': self.person.email,
             'CONTACT[privacy]': 1,
         })
-        # print('debug step3: ', response.text)
+        print('debug step3: ', response.text)
 
 class Config:
     def __init__(self, try_count, interval_second, base_url, termin_type, salutation, name, birthday, email, desire_start, desire_end):
