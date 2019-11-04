@@ -3,6 +3,10 @@
 # license that can be found in the LICENSE file.
 
 import re, json, requests, datetime, time
+from knockknock import slack_sender
+
+
+webhook_url = "https://hooks.slack.com/services/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"
 
 class Person:
     def __init__(self, name, birthday, email, salutation):
@@ -10,6 +14,7 @@ class Person:
         self.birthday = birthday
         self.email = email
         self.salutation = salutation
+
 
 class TerminAutomation:
     def __init__(self, base_url, termin_type, person, date_start, date_end):
@@ -45,7 +50,7 @@ class TerminAutomation:
         termin_dict = self.get_termine()
         if len(termin_dict.keys()) != 1:
             return False
-        
+
         self.__termin_type_key = list(termin_dict.keys())[0]
         possibles = termin_dict[self.__termin_type_key]['appoints']
         valid_date = None
@@ -71,23 +76,25 @@ class TerminAutomation:
         return False
 
     # step 2: select desired termin slot
+    @slack_sender(webhook_url=webhook_url, channel="munichappointments")
     def select_termin(self):
         if (self.__termin_type_key is None) or \
-            (self.__termin_date is None) or \
-            (self.__termine_time is None):
-            print('error: termin search fail: ', 
-                self.__termin_type_key, ' ', 
-                self.__termin_date, ' ', 
-                self.__termine_time)
+                (self.__termin_date is None) or \
+                (self.__termine_time is None):
+            print('error: termin search fail: ',
+                  self.__termin_type_key, ' ',
+                  self.__termin_date, ' ',
+                  self.__termine_time)
             return
 
         response = self.__session.post(self.base_url, {
             'step': 'WEB_APPOINT_NEW_APPOINT',
-            'APPOINT': '%s__%s__%s' % (self.__termin_type_key, 
-                self.__termin_date, 
-                self.__termine_time),
+            'APPOINT': '%s__%s__%s' % (self.__termin_type_key,
+                                       self.__termin_date,
+                                       self.__termine_time),
         })
-        print('debug step2: ', response.text)
+        print(f"Termin Information - {self.__termin_type_key}, {self.__termin_date}, self.__termine_time")
+        # print('debug step2: ', response.text)
 
     # step 3: book the appointment
     def book_termin(self):
@@ -102,8 +109,10 @@ class TerminAutomation:
         })
         print('debug step3: ', response.text)
 
+
 class Config:
-    def __init__(self, try_count, interval_second, base_url, termin_type, salutation, name, birthday, email, desire_start, desire_end):
+    def __init__(self, try_count, interval_second, base_url, termin_type, salutation, name, birthday, email,
+                 desire_start, desire_end):
         self.try_count = try_count
         self.interval_second = interval_second
         self.base_url = base_url
@@ -117,19 +126,20 @@ class Config:
 
     def valid(self):
         if (self.try_count is None) or (self.interval_second is None) or (self.base_url is None) or \
-            (self.termin_type is None) or \
-            (self.salutation is None) or \
-            (self.name is None) or \
-            (self.birthday is None) or \
-            (self.email is None) or \
-            (self.desire_start is None) or \
-            (self.desire_end is None):
+                (self.termin_type is None) or \
+                (self.salutation is None) or \
+                (self.name is None) or \
+                (self.birthday is None) or \
+                (self.email is None) or \
+                (self.desire_start is None) or \
+                (self.desire_end is None):
             return False
         return True
 
     @classmethod
     def from_json(cls, json_str):
         return cls(**json_str)
+
 
 def main():
     with open('config.json', 'r') as f:
@@ -141,23 +151,24 @@ def main():
 
     person = Person(conf.name, conf.birthday, conf.email, conf.salutation)
     service = TerminAutomation(
-        conf.base_url, 
-        conf.termin_type, 
-        person, 
-        conf.desire_start, 
+        conf.base_url,
+        conf.termin_type,
+        person,
+        conf.desire_start,
         conf.desire_end
     )
 
     for i in range(1, conf.try_count):
-        time.sleep(conf.interval_second) # search every seconds
+        time.sleep(conf.interval_second)  # search every seconds
         print('termin attempt %d start...' % i)
         if not service.found_termin():
             continue
         print('start book slot...')
         service.select_termin()
-        service.book_termin()
-        return
+        #service.book_termin()
+        # return
     print('cannot found termin.')
+
 
 if __name__ == "__main__":
     main()
